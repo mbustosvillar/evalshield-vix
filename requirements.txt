@@ -3,16 +3,17 @@ yfinance
 pandas
 numpy
 requests
+httpx
 
 # ML & RL
 torch
 scikit-learn
 
 # Reporting
-docx
+python-docx
 
 # Telegram Bot (Phase 5)
-python-telegram-bot
+python-telegram-bot[job-queue]>=20.0
 
 # Solana & On-Chain Bridge (Phase 6 & 7)
 solana

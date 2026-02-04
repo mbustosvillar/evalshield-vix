@@ -53,7 +53,8 @@ def load_secure_config():
     
     # 1. Validación de Token
     if not token or len(token) < 20:
-        logger.critical("Invalid or missing TELEGRAM_BOT_TOKEN.")
+        logger.critical("CRITICAL: TELEGRAM_BOT_TOKEN is missing or invalid.")
+        logger.info("Please add TELEGRAM_BOT_TOKEN to Railway project variables.")
         sys.exit(1)
     
     # 2. Validación de Group ID (Protocolo de Lista Blanca)
