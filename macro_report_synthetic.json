@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-02-03T10:27:39.606157+00:00",
+  "vol_metrics": {
+    "vix_spot": 22.5,
+    "vvix": 115.0,
+    "skew": 145.0,
+    "move": 110.0,
+    "term_structure_slope": 1.15,
+    "contango": true,
+    "vol_of_vol_stress": false,
+    "tail_risk_elevated": true
+  },
+  "macro_metrics": {
+    "yield_curve_note": "Proxying via TNX"
+  },
+  "breadth_metrics": {
+    "pct_above_50ma": 0.55,
+    "pct_above_200ma": 0.62,
+    "avg_momentum_1m": 0.012,
+    "breadth_divergence": false
+  },
+  "regime": "STRESS",
+  "probabilities": {
+    "expansion": 0.05,
+    "fragile": 0.25,
+    "stress": 0.6,
+    "tail_risk": 0.1
+  },
+  "severity_score": 59.5
+}

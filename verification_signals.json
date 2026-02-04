@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-02-02T22:01:47.834767+00:00",
+  "tickers": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLV"
+  ],
+  "context": {
+    "vix_current": 0,
+    "vix_1d_change_pct": 0,
+    "vix_52w_low": 0,
+    "vix_ma20": 0,
+    "vix_ma50": 0,
+    "vix_complacency": false,
+    "vix_panic_spike": false,
+    "vix_short_term_signal": false,
+    "vix_medium_term_signal": false,
+    "vix_long_term_signal": false,
+    "tactical_score": 0,
+    "breadth_pct_above_ma50": 0.5,
+    "breadth_weak": false,
+    "yield_curve_spread": null,
+    "yield_curve_inverted": false
+  },
+  "score": {
+    "total": 27.5,
+    "breadth_component": 50.0,
+    "vix_component": 0.0,
+    "momentum_component": 50,
+    "yield_component": 0.0,
+    "condition_flags": [
+      "MAJORITY_BEARISH"
+    ],
+    "severity": "LOW"
+  },
+  "ticker_signals": []
+}

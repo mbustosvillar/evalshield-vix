@@ -1,0 +1,38 @@
+# Environment Variables and Secrets
+.env*
+*.env
+secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Project Specific
+logs/
+reports/
+*.zip
+*.docx
+temp_cron
+mycron
+crontab_entry.txt
+
+# Model artifacts (Keeping .pt and .pth as per instructions)
+# !*.pt
+# !*.pth

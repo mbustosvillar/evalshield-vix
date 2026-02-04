@@ -1,0 +1,20 @@
+# Core market data & analysis
+yfinance
+pandas
+numpy
+requests
+
+# ML & RL
+torch
+scikit-learn
+
+# Reporting
+docx
+
+# Telegram Bot (Phase 5)
+python-telegram-bot
+
+# Solana & On-Chain Bridge (Phase 6 & 7)
+solana
+solders
+anchorpy

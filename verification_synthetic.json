@@ -1,0 +1,46 @@
+{
+    "generated_at": "2026-02-02T22:00:00.000000+00:00",
+    "tickers": [
+        "SPY"
+    ],
+    "context": {
+        "vix_current": 18.5,
+        "vix_1d_change_pct": 0.05,
+        "vix_52w_low": 12.0,
+        "vix_ma20": 15.0,
+        "vix_ma50": 16.5,
+        "vix_complacency": false,
+        "vix_panic_spike": false,
+        "vix_short_term_signal": true,
+        "vix_medium_term_signal": true,
+        "vix_long_term_signal": false,
+        "tactical_score": 2,
+        "breadth_pct_above_ma50": 0.4,
+        "breadth_weak": true,
+        "yield_curve_spread": 0.1,
+        "yield_curve_inverted": false
+    },
+    "score": {
+        "total": 45.0,
+        "breadth_component": 60.0,
+        "vix_component": 25.0,
+        "momentum_component": 50.0,
+        "yield_component": 30.0,
+        "condition_flags": [
+            "BREADTH_DETERIORATION"
+        ],
+        "severity": "MODERATE"
+    },
+    "ticker_signals": [
+        {
+            "ticker": "SPY",
+            "price": 480.0,
+            "ma_20": 485.0,
+            "ma_50": 475.0,
+            "rsi": 45.0,
+            "above_ma50": true,
+            "momentum_score": -0.1,
+            "signal_text": "NEUTRAL"
+        }
+    ]
+}

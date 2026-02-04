@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-02-03T12:49:38.896880+00:00",
+  "tickers": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLV"
+  ],
+  "context": {
+    "vix_current": 13.93,
+    "vix_1d_change_pct": 0.008,
+    "vix_52w_low": 13.5,
+    "vix_ma20": 14.3,
+    "vix_ma50": 14.48,
+    "vix_3m": 15.81,
+    "vix_term_structure": 0.881,
+    "vvix_current": 79.07,
+    "skew_current": 101.66,
+    "vix_complacency": true,
+    "vix_panic_spike": false,
+    "vix_short_term_signal": false,
+    "vix_medium_term_signal": false,
+    "vix_long_term_signal": true,
+    "vix_term_structure_inverted": false,
+    "tactical_score": 1,
+    "breadth_pct_above_ma50": 0.0,
+    "breadth_weak": true,
+    "yield_curve_spread": 0.0,
+    "yield_curve_inverted": false,
+    "blue_gap_pct": -0.38,
+    "gap_velocity": 0.0,
+    "deval_vacuum_index": 31.5,
+    "x_sentiment_score": 0.048,
+    "x_sentiment_label": "Neutro"
+  },
+  "score": {
+    "total": 67.0,
+    "breadth_component": 100,
+    "vix_component": 20.0,
+    "momentum_component": 79.8,
+    "yield_component": 100,
+    "vix_term_component": 0.0,
+    "vvix_component": 0.0,
+    "condition_flags": [
+      "BREADTH_DETERIORATION",
+      "VIX_COMPLACENCY",
+      "MAJORITY_BEARISH"
+    ],
+    "severity": "HIGH"
+  },
+  "ticker_signals": [
+    {
+      "ticker": "SPY",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "QQQ",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "IWM",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "DIA",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "XLK",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "XLF",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "XLE",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    },
+    {
+      "ticker": "XLV",
+      "price": 338.86,
+      "ma_20": 347.93,
+      "ma_50": 352.17,
+      "rsi": 40.33,
+      "above_ma50": false,
+      "momentum_score": -0.597,
+      "signal_text": "BEARISH"
+    }
+  ],
+  "narrative": [
+    "R\u00c9GIMEN ESTABLE: No se detecta confluencia de complacencia global y tensi\u00f3n local inmediata."
+  ],
+  "tail_risk_probability": 58.2,
+  "rl_allocation": {
+    "SPY": 60,
+    "VIX_Calls": 10,
+    "CASH": 30
+  }
+}
