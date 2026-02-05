@@ -5,6 +5,10 @@ import hashlib
 import logging
 from datetime import datetime, time as dtime
 import sys
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Structured Logging Config (Nivel Institucional)
 logging.basicConfig(
@@ -19,6 +23,11 @@ class SecurityError(Exception):
 
 # Import our orchestration logic
 from integrated_orchestrator import run_orchestrator
+from solana_bridge import SafeVaultBridge
+from persistence import DevalDBManager
+
+# Global Bridge Instance
+bridge = SafeVaultBridge()
 
 # Try to import telegram, but provide instructions if missing
 try:
@@ -70,63 +79,53 @@ def load_secure_config():
 TOKEN, GROUP_CHAT_ID = load_secure_config()
 DATA_FILE = "collective_feedback.json"
 
-async def daily_report(context: ContextTypes.DEFAULT_TYPE):
-    """Orchestrates and broadcasts the daily Deval Vacuum Index report."""
-    logger.info("Generating daily collective report...")
-    
-    # Security Check: Verify model integrity before run
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Comando de inicio con menú institucional."""
+    text = (
+        "🛡️ *DevalShield Collective Bot v2*\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "Bienvenido, operamos bajo protocolos de *Zero Trust*.\n\n"
+        "🔍 *Comandos Disponibles:*\n"
+        "• `/report`: Último análisis del DVI.\n"
+        "• `/status`: Salud del sistema y bias ML.\n"
+        "• `/force`: Forzar nueva inferencia ahora.\n"
+        "• `/hedge_status`: Estado del vault en Solana.\n"
+        "• `/approve`: Aprobar Tx de cobertura pendiente.\n"
+        "• `/lock` / `/unlock`: Control de Kill-Switch.\n"
+    )
+    await update.message.reply_text(text, parse_mode='Markdown')
+
+async def trigger_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Alias para ver el reporte instantáneo sin forzar nueva inferencia."""
+    await update.message.reply_text("🔎 Consultando último registro en DB...")
+    # Llama a la lógica de reporte diario pero sin el schedule de JobQueue
+    await daily_report_logic(update, context)
+
+async def daily_report_logic(update_or_context, context_if_job=None):
+    """Lógica compartida para generar y enviar el reporte."""
     try:
         verify_integrity("tail_risk_model.pth", EXPECTED_MODEL_HASH)
-    except SecurityError as e:
-        logger.critical(f"Security halt: {e}")
-        return
-
-    # Run the full integrated pipeline (signals + ML + Sentiment)
-    # We use mock=False if token is available for X/Bluelytics, else True
-    payload = run_orchestrator(mock=True)
-    
-    dvi = payload['context']['deval_vacuum_index']
-    prob = payload.get('tail_risk_probability', 'N/A')
-    narrative = "\n".join(payload.get('narrative', []))
-    
-    text = (
-        f"🛡️ *DevalShield Collective Report*\n"
-        f"📅 {datetime.now().strftime('%d %b %Y')}\n\n"
-        f"*DEVAL VACUUM INDEX:* {dvi} / 100\n"
-        f"*30D TAIL-RISK PROB:* {prob}%\n\n"
-        f"📖 *Strategic Narrative:*\n{narrative}\n\n"
-        f"💬 *Feedback Requerido:*\n"
-        f"¿Sientes presión devaluatoria real hoy en tu zona?\n"
-        f"Responde: *SÍ* / *NO* (+ comentario/señal local)"
-    )
-    
-    # Send to group
-    chat_id = context.job.chat_id if context.job else GROUP_CHAT_ID
-    
-    if chat_id:
-        try:
-            await context.bot.send_message(
-                chat_id=chat_id, 
-                text=text, 
-                parse_mode='Markdown'
-            )
-        except Exception as e:
-            logger.error(f"[TELEGRAM] Failed to send report: {e}")
-    else:
-        logger.warning("[TELEGRAM] Report generated but NOT sent (Missing GROUP_CHAT_ID). Check env vars.")
-    
-    # Log the baseline for re-training later
-    record = {
-        "timestamp": datetime.now().isoformat(),
-        "dvi": dvi,
-        "tail_risk_prob": prob,
-        "features": payload['context'],
-        "feedbacks": []
-    }
-    
-    with open(DATA_FILE, "a") as f:
-        json.dump(record, f)
-        f.write("\n")
+        payload = run_orchestrator(mock=False)
+        
+        dvi = payload['context']['deval_vacuum_index']
+        prob = payload.get('tail_risk_probability', 'N/A')
+        # The orchestrator now generates the full structured narrative
+        narrative = "\n".join(payload.get('narrative', []))
+        
+        text = (
+            f"🛡️ *DEVALSHIELD – Citadel View • {datetime.now().strftime('%d %b %Y')} • 09:00 AR*\n\n"
+            f"{narrative}\n\n"
+            f"⚠️ *Institucional:* Análisis basado en framework risk-management de alta frecuencia. Prohibida la redistribución."
+        )
+        
+        if hasattr(update_or_context, 'message'): # Viene de un comando
+            await update_or_context.message.reply_text(text, parse_mode='Markdown')
+        else: # Viene del JobQueue
+            await update_or_context.bot.send_message(chat_id=GROUP_CHAT_ID, text=text, parse_mode='Markdown')
+            
+        db.log_signal(payload)
+    except Exception as e:
+        logger.error(f"Report Logic Error: {e}")
 
 async def handle_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Parses SÍ/NO feedback and stores it for model refinement."""
@@ -160,58 +159,69 @@ async def handle_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text(msg)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "Bienvenido al *DevalShield Collective Bot*.\n"
-        "Recibirás informes diarios y podrás contribuir al entrenamiento del modelo con tu feedback local.",
-        parse_mode='Markdown'
-    )
+# DB Instance
+db = DevalDBManager()
 
-async def trigger_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Manual trigger for testing."""
-    await daily_report(context)
+async def hedge_status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Consulta el estado del bridge y transacciones pendientes."""
+    status = bridge.get_hedge_status()
+    text = (
+        f"🏦 *Estado del Vault Solana*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"Program ID: `{status['program_id'][:8]}...`\n"
+        f"Red: `{status['cluster'].upper()}`\n"
+        f"Status Bridge: {'✅ ONLINE' if status['solana_available'] else '⚠️ OFFLINE (MOCK)'}\n\n"
+        f"Pendiente: {'🔴 SI' if status['pending_tx_id'] else '🟢 NINGUNA'}\n"
+    )
+    if status['pending_tx_id']:
+        text += f"ID Solicitud: `{status['pending_tx_id']}`\nUse `/approve` para ejecutar."
+    
+    await update.message.reply_text(text, parse_mode='Markdown')
+
+async def approve_tx_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Ejecuta una transacción aprobada manualmente."""
+    await update.message.reply_text("⌛ *Procesando firma en Solana Mainnet...*", parse_mode='Markdown')
+    result = await bridge.execute_approved_unwind()
+    
+    if result['success']:
+        data = result['data']
+        text = (
+            f"✅ *Protección Ejecutada*\n"
+            f"DVI Gatillo: {data['dvi']}\n"
+            f"Estrategia: `{data['strategy']}`\n"
+            f"Tx: [Ver en Explorer](https://solscan.io/tx/{data['tx_signature']})"
+        )
+    else:
+        text = f"❌ *Error de Ejecución:* {result['error']}"
+    
+    await update.message.reply_text(text, parse_mode='Markdown')
 
 async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Returns current system status and last analysis timestamp."""
-    status_info = {
-        "bot": "🟢 ONLINE",
-        "environment": os.getenv("RAILWAY_ENVIRONMENT", "development"),
-        "model_loaded": os.path.exists("tail_risk_model.pth"),
-        "last_bias": None,
-        "kill_switch": False
-    }
+    is_locked = db.get_state("kill_switch_active", "true") == "true"
     
-    # Check collective bias
+    # Check collective bias adjustment (from JSON for now as it's small)
+    adjustment = 0
     if os.path.exists("collective_bias.json"):
         with open("collective_bias.json") as f:
             bias_data = json.load(f)
-            status_info["last_bias"] = bias_data
-    
-    # Check kill switch
-    if os.path.exists("safety_lock.json"):
-        with open("safety_lock.json") as f:
-            lock = json.load(f)
-            status_info["kill_switch"] = lock.get("kill_switch_active", False)
+            adjustment = bias_data.get('adjustment', 0)
+
+    status_info = {
+        "bot": "🟢 ONLINE",
+        "model_loaded": os.path.exists("tail_risk_model.pth"),
+        "kill_switch": is_locked,
+        "bias": adjustment
+    }
     
     text = (
         f"📊 *DevalShield System Status*\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🤖 Bot: {status_info['bot']}\n"
-        f"🌐 Environment: `{status_info['environment']}`\n"
-        f"🧠 Model Loaded: {'✅' if status_info['model_loaded'] else '❌'}\n"
-        f"🔒 Kill Switch: {'⛔ ACTIVE' if status_info['kill_switch'] else '🟢 OFF'}\n\n"
+        f"🧠 Model: {'✅' if status_info['model_loaded'] else '❌'}\n"
+        f"🔒 Kill Switch: {'⛔ ACTIVE' if status_info['kill_switch'] else '🟢 OFF'}\n"
+        f"📈 Bias Adj: `{status_info['bias']:+.3f}`\n"
     )
-    
-    if status_info["last_bias"]:
-        bias = status_info["last_bias"]
-        text += (
-            f"📈 *Last Retrain Info:*\n"
-            f"• Samples: {bias.get('samples', 'N/A')}\n"
-            f"• Bias Adjustment: {bias.get('adjustment', 0):+.3f}\n"
-            f"• Timestamp: {bias.get('timestamp', 'N/A')[:10]}\n"
-        )
-    else:
-        text += "\n_No retraining data yet._"
     
     await update.message.reply_text(text, parse_mode='Markdown')
 
@@ -220,45 +230,30 @@ async def force_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔄 *Ejecutando análisis completo...*", parse_mode='Markdown')
     
     try:
-        # Security Check first
         verify_integrity("tail_risk_model.pth", EXPECTED_MODEL_HASH)
-        
-        # Run orchestrator
-        payload = run_orchestrator(mock=True)
+        payload = run_orchestrator(mock=False)
         
         dvi = payload['context']['deval_vacuum_index']
         prob = payload.get('tail_risk_probability', 'N/A')
-        narrative = "\n".join(payload.get('narrative', [])[:3])  # First 3 lines
         
         text = (
             f"⚡ *Análisis On-Demand Completado*\n\n"
             f"*DEVAL VACUUM INDEX:* {dvi} / 100\n"
             f"*30D TAIL-RISK PROB:* {prob}%\n\n"
-            f"📖 *Resumen:*\n{narrative}\n\n"
             f"_Generado: {datetime.now().strftime('%H:%M:%S')}_"
         )
-        
         await update.message.reply_text(text, parse_mode='Markdown')
-        logger.info(f"Forced analysis completed. DVI={dvi}")
+        db.log_signal(payload)
         
-    except SecurityError as e:
-        await update.message.reply_text(f"⛔ *Error de Seguridad:* {e}", parse_mode='Markdown')
     except Exception as e:
         await update.message.reply_text(f"❌ *Error:* {str(e)}", parse_mode='Markdown')
-        logger.error(f"Force analysis failed: {e}")
 
 async def killswitch_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ADMIN: Activates the safety lock."""
-    # Authenticate admin here in prod
-    with open("safety_lock.json", "w") as f:
-        json.dump({"kill_switch_active": True}, f)
+    db.set_state("kill_switch_active", "true")
     await update.message.reply_text("⛔ SYSTEM LOCKED. On-chain triggers disabled.")
 
 async def killswitch_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ADMIN: Deactivates the safety lock."""
-    # Authenticate admin here in prod
-    with open("safety_lock.json", "w") as f:
-        json.dump({"kill_switch_active": False}, f)
+    db.set_state("kill_switch_active", "false")
     await update.message.reply_text("⚠️ SYSTEM UN-LOCKED. On-chain triggers ENABLED.")
 
 def main():
@@ -272,6 +267,8 @@ def main():
     app.add_handler(CommandHandler("report", trigger_now))
     app.add_handler(CommandHandler("status", status_command))
     app.add_handler(CommandHandler("force", force_analysis))
+    app.add_handler(CommandHandler("hedge_status", hedge_status_command))
+    app.add_handler(CommandHandler("approve", approve_tx_command))
     app.add_handler(CommandHandler("lock", killswitch_on))
     app.add_handler(CommandHandler("unlock", killswitch_off))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))

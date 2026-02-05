@@ -11,3 +11,6 @@ anchor-lang = "0.30.0"
 anchor-spl = "0.30.0"
 mpl-core = "0.7.0"
 
+[features]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+

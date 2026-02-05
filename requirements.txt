@@ -9,3 +9,6 @@ requests
 scikit-learn
 httpx
 python-docx
+plotly
+streamlit
+python-dotenv

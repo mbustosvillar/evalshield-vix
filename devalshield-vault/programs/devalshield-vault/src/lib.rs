@@ -55,7 +55,7 @@ pub mod devalshield_vault {
         token::transfer(cpi_ctx, net_amount)?;
 
         // 3. Mint shares (1:1 with net amount)
-        let seeds = &[b"vault", &[vault.bump]];
+        let seeds = &[b"vault" as &[u8], &[vault.bump]];
         let signer = &[&seeds[..]];
         let cpi_mint = CpiContext::new_with_signer(
             ctx.accounts.token_program.to_account_info(),
@@ -101,7 +101,7 @@ pub mod devalshield_vault {
         require!(index > 75, ErrorCode::IndexTooLow);
 
         let amount = ctx.accounts.usdt_vault.amount / 2;
-        let seeds = &[b"vault", &[vault.bump]];
+        let seeds = &[b"vault" as &[u8], &[vault.bump]];
         let signer = &[&seeds[..]];
 
         let cpi_ctx = CpiContext::new_with_signer(
@@ -133,7 +133,7 @@ pub mod devalshield_vault {
         let perf_fee = (gross_payout as u128 * vault.performance_fee_bps as u128 / 10_000) as u64;
         let net_payout = gross_payout - perf_fee;
 
-        let seeds = &[b"vault", &[vault.bump]];
+        let seeds = &[b"vault" as &[u8], &[vault.bump]];
         let signer = &[&seeds[..]];
 
         // 1. Fee to Treasury

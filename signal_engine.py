@@ -192,20 +192,23 @@ def compute_sentiment(texts: list[str]) -> float:
     
     return total_score / total_mentions if total_mentions > 0 else 0.0
 
-def fetch_x_posts(query: str = '(devaluación OR "dólar blue" OR brecha OR inflación OR miedo) Argentina lang:es', max_results: int = 20) -> list[str]:
-    """Fetches real tweets if BEARER_TOKEN is in env, else returns mock data."""
+def fetch_x_posts(query: str = '(devaluación OR "dólar blue" OR brecha OR inflación OR miedo) Argentina lang:es', max_results: int = 20) -> dict:
+    """Fetches tweets and returns a dict with posts and metadata (Confidence Score)."""
     token = os.getenv("X_BEARER_TOKEN")
+    result = {"posts": [], "confidence": 0.5} # Default mid confidence for mock
+    
     if not token:
-        # Static mock based on Feb 3 2026 Snapshot provided by user
-        return [
+        # Static mock based on Feb 3 2026 Snapshot
+        result["posts"] = [
             "El dólar blue sigue bajando, increíble la estabilidad cambiaria!",
             "Mucho alivio con la inflación de este mes, Milei lo hizo.",
-            "Dudosa la renuncia de Marco Lavagna en el INDEC... manipulación?",
+            "Dudosa la renuncia de Marco Lavagna en el INDEC...",
             "Me da mucha ansiedad que mientan con los números de la brecha.",
             "Cínico que digan que no hay crisis cuando el hambre aprieta.",
             "Éxito total el canje de deuda, estabilidad absoluta.",
             "Locura total lo que está pasando con el dólar libre, volando!"
         ]
+        return result
     
     headers = {"Authorization": f"Bearer {token}"}
     url = "https://api.twitter.com/2/tweets/search/recent"
@@ -213,10 +216,15 @@ def fetch_x_posts(query: str = '(devaluación OR "dólar blue" OR brecha OR infl
     try:
         resp = requests.get(url, headers=headers, params=params, timeout=10)
         if resp.status_code == 200:
-            return [t['text'] for t in resp.json().get('data', [])]
+            data = resp.json().get('data', [])
+            result["posts"] = [t['text'] for t in data]
+            # Confidence grows with sample size
+            result["confidence"] = min(1.0, len(data) / max_results)
+            return result
     except Exception as e:
         print(f"[WARN] fetch_x_posts error: {e}", file=sys.stderr)
-    return []
+    
+    return result
 
 # ─── INDICATOR FUNCTIONS ─────────────────────────────────────────────────────
 def compute_rsi(series: pd.Series, period: int = RSI_PERIOD) -> pd.Series:
@@ -528,7 +536,8 @@ def build_report(ticker_list: list = None, mock: bool = False) -> FullReport:
     global_complacency = max(0, 100 - score.vix_component)
     
     # Local pressure component
-    x_texts = fetch_x_posts()
+    x_data = fetch_x_posts()
+    x_texts = x_data['posts']
     sentiment_score = compute_sentiment(x_texts)
     
     # Pressure = Gap + Velocity + Sentiment Booster

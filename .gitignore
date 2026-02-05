@@ -32,6 +32,8 @@ reports/
 temp_cron
 mycron
 crontab_entry.txt
+devalshield.db
+devalshield-vault/target/
 
 # Model artifacts (Keeping .pt and .pth as per instructions)
 # !*.pt

@@ -8,7 +8,7 @@ skip-lint = false
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "mainnet"
 wallet = "./mainnet-deployer.json"
 
 [scripts]

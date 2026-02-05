@@ -1,146 +1,85 @@
 {
-  "generated_at": "2026-02-03T12:49:38.896880+00:00",
-  "tickers": [
-    "SPY",
-    "QQQ",
-    "IWM",
-    "DIA",
-    "XLK",
-    "XLF",
-    "XLE",
-    "XLV"
-  ],
+  "generated_at": "2026-02-05T14:24:56.185233",
+  "tickers": [],
   "context": {
-    "vix_current": 13.93,
-    "vix_1d_change_pct": 0.008,
-    "vix_52w_low": 13.5,
-    "vix_ma20": 14.3,
-    "vix_ma50": 14.48,
-    "vix_3m": 15.81,
-    "vix_term_structure": 0.881,
-    "vvix_current": 79.07,
-    "skew_current": 101.66,
-    "vix_complacency": true,
-    "vix_panic_spike": false,
-    "vix_short_term_signal": false,
-    "vix_medium_term_signal": false,
-    "vix_long_term_signal": true,
-    "vix_term_structure_inverted": false,
-    "tactical_score": 1,
-    "breadth_pct_above_ma50": 0.0,
-    "breadth_weak": true,
-    "yield_curve_spread": 0.0,
-    "yield_curve_inverted": false,
-    "blue_gap_pct": -0.38,
-    "gap_velocity": 0.0,
-    "deval_vacuum_index": 31.5,
-    "x_sentiment_score": 0.048,
-    "x_sentiment_label": "Neutro"
+    "timestamp": "2026-02-05T14:24:56.185233",
+    "spy_price": 500.0,
+    "vix_current": 18.5,
+    "vix_3m": 20.0,
+    "vvix_current": 95.0,
+    "skew_current": 125.0,
+    "vix_term_structure": 0.925,
+    "yield_curve_spread": 0.15,
+    "portfolio": {
+      "GLD": {
+        "price": 180.0,
+        "change_pct": -1.18
+      },
+      "SLV": {
+        "price": 22.0,
+        "change_pct": -12.19
+      },
+      "URA": {
+        "price": 28.0,
+        "change_pct": -4.6
+      },
+      "COPX": {
+        "price": 35.0,
+        "change_pct": -4.87
+      },
+      "LMT": {
+        "price": 450.0,
+        "change_pct": 1.43
+      },
+      "VST": {
+        "price": 50.0,
+        "change_pct": -1.0
+      },
+      "TEM": {
+        "price": 15.0,
+        "change_pct": -0.86
+      }
+    },
+    "is_mock": true,
+    "deval_vacuum_index": 13.0
   },
   "score": {
-    "total": 67.0,
-    "breadth_component": 100,
-    "vix_component": 20.0,
-    "momentum_component": 79.8,
-    "yield_component": 100,
-    "vix_term_component": 0.0,
-    "vvix_component": 0.0,
-    "condition_flags": [
-      "BREADTH_DETERIORATION",
-      "VIX_COMPLACENCY",
-      "MAJORITY_BEARISH"
-    ],
-    "severity": "HIGH"
+    "beta": 1.1,
+    "correlation": 0.45,
+    "concentration": 75,
+    "cash_ratio": 22
   },
-  "ticker_signals": [
-    {
-      "ticker": "SPY",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "QQQ",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "IWM",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "DIA",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "XLK",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "XLF",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "XLE",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    },
-    {
-      "ticker": "XLV",
-      "price": 338.86,
-      "ma_20": 347.93,
-      "ma_50": 352.17,
-      "rsi": 40.33,
-      "above_ma50": false,
-      "momentum_score": -0.597,
-      "signal_text": "BEARISH"
-    }
-  ],
+  "ticker_signals": [],
   "narrative": [
-    "R\u00c9GIMEN ESTABLE: No se detecta confluencia de complacencia global y tensi\u00f3n local inmediata."
+    "DVI          13.0/100   \u21939.0",
+    "Tail-Risk 30d 58.2%   \u2191??",
+    "Estado       Bajo Riesgo",
+    "",
+    "Tu exposici\u00f3n cr\u00edtica",
+    "Commodities (GLD/SLV/URA/COPX)   75%   \u2190 concentraci\u00f3n extrema",
+    "Beta estimado vs SPX             1.10  \u2190 neutral",
+    "Cash ratio                       22%   \u2190 sano",
+    "",
+    "Se\u00f1ales Citadel-level",
+    "\u2022 Commodities correlation en stress \u2192 0.45 (bajo)",
+    "\u2022 VIX 18.5 (barato para hedge)",
+    "\u2022 SLV + URA = 30% del portafolio \u2192 sizing demasiado grande",
+    "",
+    "Acci\u00f3n recomendada (prioridad Citadel)",
+    "1. REDUCIR SLV + URA (vender ~USD 500) para bajar concentraci\u00f3n.\n2. Rotar capital a SPY o Cash.\n3. HEDGE AUTOM\u00c1TICO EN ESPERA (Gatillo DVI > 65).\n   - Vender USD 475\u2013515 de SLV + URA\n   - Nueva posici\u00f3n objetivo: Commodities \u2192 50% del portafolio\n   - Impacto en cash despu\u00e9s: Cash sube a ~USD 1485",
+    "",
+    "Riesgo general: ELEVADO \u2192 Preparar ejecuci\u00f3n de protecci\u00f3n"
   ],
   "tail_risk_probability": 58.2,
+  "citadel_metrics": {
+    "beta": 1.1,
+    "correlation": 0.45,
+    "concentration": 75,
+    "cash_ratio": 22
+  },
   "rl_allocation": {
-    "SPY": 60,
-    "VIX_Calls": 10,
-    "CASH": 30
+    "Equities": 55,
+    "Commodities": 20,
+    "Cash": 25
   }
 }
