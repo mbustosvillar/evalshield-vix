@@ -9,3 +9,7 @@ overflow-checks = true
 lto = "fat"
 codegen-units = 1
 panic = "abort"
+
+[workspace.dependencies]
+blake3 = "=1.5.0"
+constant_time_eq = "=0.3.0"

@@ -3,7 +3,7 @@ use anchor_lang::solana_program::program::invoke;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer, Burn, MintTo};
 use mpl_core::{ID as MPL_CORE_ID, instructions::CreateV2CpiBuilder};
 
-declare_id!("6hJ4z1REpTfJ9Q7uYy1R6pTfJ9Q7uYy1R6pTfJ9Q7uYy");
+declare_id!("BppKFtdQqyLtn6PZtME52UrXDUyi67Lwn68UaXBUSrtc");
 
 #[program]
 pub mod devalshield_vault {
