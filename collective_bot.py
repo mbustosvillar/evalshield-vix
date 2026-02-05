@@ -58,7 +58,9 @@ def load_secure_config():
         sys.exit(1)
     
     # 2. Validación de Group ID (Protocolo de Lista Blanca)
-    if group_id and not str(group_id).startswith("-100"):
+    if not group_id:
+        logger.warning("[CONFIG] TELEGRAM_GROUP_ID is missing using fallback to local logs only.")
+    elif not str(group_id).startswith("-100"):
         logger.critical(f"Suspicious GROUP_ID detected: {group_id}")
         sys.exit(1)
         
@@ -100,11 +102,18 @@ async def daily_report(context: ContextTypes.DEFAULT_TYPE):
     
     # Send to group
     chat_id = context.job.chat_id if context.job else GROUP_CHAT_ID
-    await context.bot.send_message(
-        chat_id=chat_id, 
-        text=text, 
-        parse_mode='Markdown'
-    )
+    
+    if chat_id:
+        try:
+            await context.bot.send_message(
+                chat_id=chat_id, 
+                text=text, 
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"[TELEGRAM] Failed to send report: {e}")
+    else:
+        logger.warning("[TELEGRAM] Report generated but NOT sent (Missing GROUP_CHAT_ID). Check env vars.")
     
     # Log the baseline for re-training later
     record = {

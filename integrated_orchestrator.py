@@ -24,7 +24,7 @@ MODEL_PATH = "tail_risk_model.pth"
 RL_AGENT_PATH = "ppo_agent.pth" # Usually saved after training
 
 def load_transformer():
-    checkpoint = torch.load(MODEL_PATH)
+    checkpoint = torch.load(MODEL_PATH, weights_only=False)
     # Architecture params from tail_risk_model.py
     model = TailRiskTransformer(input_dim=8, hidden_dim=32, num_heads=4, num_layers=2)
     model.load_state_dict(checkpoint['model_state_dict'])
