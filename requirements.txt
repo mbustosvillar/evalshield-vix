@@ -1,21 +1,15 @@
-# Core market data & analysis
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+torchaudio
+solana==0.36.6
+solders==0.26.0
+anchorpy==0.21.0
+python-telegram-bot==22.6
 yfinance
 pandas
 numpy
 requests
-httpx
-
-# ML & RL
-torch
 scikit-learn
-
-# Reporting
+httpx
 python-docx
-
-# Telegram Bot (Phase 5)
-python-telegram-bot[job-queue]>=20.0
-
-# Solana & On-Chain Bridge (Phase 6 & 7)
-solana
-solders
-anchorpy
