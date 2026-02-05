@@ -171,6 +171,82 @@ async def trigger_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Manual trigger for testing."""
     await daily_report(context)
 
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Returns current system status and last analysis timestamp."""
+    status_info = {
+        "bot": "🟢 ONLINE",
+        "environment": os.getenv("RAILWAY_ENVIRONMENT", "development"),
+        "model_loaded": os.path.exists("tail_risk_model.pth"),
+        "last_bias": None,
+        "kill_switch": False
+    }
+    
+    # Check collective bias
+    if os.path.exists("collective_bias.json"):
+        with open("collective_bias.json") as f:
+            bias_data = json.load(f)
+            status_info["last_bias"] = bias_data
+    
+    # Check kill switch
+    if os.path.exists("safety_lock.json"):
+        with open("safety_lock.json") as f:
+            lock = json.load(f)
+            status_info["kill_switch"] = lock.get("kill_switch_active", False)
+    
+    text = (
+        f"📊 *DevalShield System Status*\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"🤖 Bot: {status_info['bot']}\n"
+        f"🌐 Environment: `{status_info['environment']}`\n"
+        f"🧠 Model Loaded: {'✅' if status_info['model_loaded'] else '❌'}\n"
+        f"🔒 Kill Switch: {'⛔ ACTIVE' if status_info['kill_switch'] else '🟢 OFF'}\n\n"
+    )
+    
+    if status_info["last_bias"]:
+        bias = status_info["last_bias"]
+        text += (
+            f"📈 *Last Retrain Info:*\n"
+            f"• Samples: {bias.get('samples', 'N/A')}\n"
+            f"• Bias Adjustment: {bias.get('adjustment', 0):+.3f}\n"
+            f"• Timestamp: {bias.get('timestamp', 'N/A')[:10]}\n"
+        )
+    else:
+        text += "\n_No retraining data yet._"
+    
+    await update.message.reply_text(text, parse_mode='Markdown')
+
+async def force_analysis(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Forces an immediate full analysis and returns results."""
+    await update.message.reply_text("🔄 *Ejecutando análisis completo...*", parse_mode='Markdown')
+    
+    try:
+        # Security Check first
+        verify_integrity("tail_risk_model.pth", EXPECTED_MODEL_HASH)
+        
+        # Run orchestrator
+        payload = run_orchestrator(mock=True)
+        
+        dvi = payload['context']['deval_vacuum_index']
+        prob = payload.get('tail_risk_probability', 'N/A')
+        narrative = "\n".join(payload.get('narrative', [])[:3])  # First 3 lines
+        
+        text = (
+            f"⚡ *Análisis On-Demand Completado*\n\n"
+            f"*DEVAL VACUUM INDEX:* {dvi} / 100\n"
+            f"*30D TAIL-RISK PROB:* {prob}%\n\n"
+            f"📖 *Resumen:*\n{narrative}\n\n"
+            f"_Generado: {datetime.now().strftime('%H:%M:%S')}_"
+        )
+        
+        await update.message.reply_text(text, parse_mode='Markdown')
+        logger.info(f"Forced analysis completed. DVI={dvi}")
+        
+    except SecurityError as e:
+        await update.message.reply_text(f"⛔ *Error de Seguridad:* {e}", parse_mode='Markdown')
+    except Exception as e:
+        await update.message.reply_text(f"❌ *Error:* {str(e)}", parse_mode='Markdown')
+        logger.error(f"Force analysis failed: {e}")
+
 async def killswitch_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """ADMIN: Activates the safety lock."""
     # Authenticate admin here in prod
@@ -194,6 +270,8 @@ def main():
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("report", trigger_now))
+    app.add_handler(CommandHandler("status", status_command))
+    app.add_handler(CommandHandler("force", force_analysis))
     app.add_handler(CommandHandler("lock", killswitch_on))
     app.add_handler(CommandHandler("unlock", killswitch_off))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))

@@ -1,0 +1,1 @@
+0 3 * * 0 cd /Users/user/Downloads/Projects_Misc/VIX dashboard/files && ./run_weekly_retrain.sh >> logs/cron.log 2>&1
