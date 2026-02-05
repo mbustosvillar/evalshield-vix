@@ -259,21 +259,23 @@ async def killswitch_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     global db, bridge
     try:
+        # Check write permissions for DB FIRST
+        try:
+            # We assume /app is the base in production, or the current dir
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            test_file = os.path.join(base_dir, "test_write.tmp")
+            with open(test_file, "w") as f:
+                f.write("test")
+            os.remove(test_file)
+            logger.info(f"Disk write check PASSED at {base_dir}")
+        except Exception as e:
+            logger.critical(f"CRITICAL DISK ERROR: Cannot write to {base_dir}. Bot will fail. Check Docker permissions. Error: {e}")
+            sys.exit(1)
+
         # Initialize Core Instances
         db = DevalDBManager()
         bridge = SafeVaultBridge()
         
-        # Check write permissions for DB
-        try:
-            db_dir = os.path.dirname(os.path.abspath(db.db_path))
-            test_file = os.path.join(db_dir, "test_write.tmp")
-            with open(test_file, "w") as f:
-                f.write("test")
-            os.remove(test_file)
-            logger.info(f"Disk write check PASSED at {db_dir}")
-        except Exception as e:
-            logger.critical(f"CRITICAL DISK ERROR: Cannot write to {db_dir}. Bot will fail. Check Docker permissions. Error: {e}")
-            sys.exit(1)
 
         # Final environment validation
         if os.getenv("RAILWAY_ENVIRONMENT") == "production":
