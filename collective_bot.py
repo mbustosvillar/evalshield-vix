@@ -257,27 +257,37 @@ async def killswitch_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⚠️ SYSTEM UN-LOCKED. On-chain triggers ENABLED.")
 
 def main():
-    # Final environment validation
-    if os.getenv("RAILWAY_ENVIRONMENT") == "production":
-        logger.info("Running in PRODUCTION mode. Zero Trust protocols active.")
+    try:
+        # Check write permissions for DB
+        try:
+            with open("test_write.tmp", "w") as f:
+                f.write("test")
+            os.remove("test_write.tmp")
+        except Exception as e:
+            logger.error(f"Write permissions check failed: {e}")
 
-    app = Application.builder().token(TOKEN).build()
-    
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("report", trigger_now))
-    app.add_handler(CommandHandler("status", status_command))
-    app.add_handler(CommandHandler("force", force_analysis))
-    app.add_handler(CommandHandler("hedge_status", hedge_status_command))
-    app.add_handler(CommandHandler("approve", approve_tx_command))
-    app.add_handler(CommandHandler("lock", killswitch_on))
-    app.add_handler(CommandHandler("unlock", killswitch_off))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))
-    
-    # Schedule daily report at 10 AM
-    # app.job_queue.run_daily(daily_report, time=dtime(10, 0), chat_id=GROUP_CHAT_ID)
-    
-    logger.info("Collective Bot starting...")
-    app.run_polling()
+        # Final environment validation
+        if os.getenv("RAILWAY_ENVIRONMENT") == "production":
+            logger.info("Running in PRODUCTION mode. Zero Trust protocols active.")
+
+        logger.info(f"Initializing Application with token: {TOKEN[:5]}...{TOKEN[-5:]}")
+        app = Application.builder().token(TOKEN).build()
+        
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("report", trigger_now))
+        app.add_handler(CommandHandler("status", status_command))
+        app.add_handler(CommandHandler("force", force_analysis))
+        app.add_handler(CommandHandler("hedge_status", hedge_status_command))
+        app.add_handler(CommandHandler("approve", approve_tx_command))
+        app.add_handler(CommandHandler("lock", killswitch_on))
+        app.add_handler(CommandHandler("unlock", killswitch_off))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))
+        
+        logger.info("Collective Bot starting polling...")
+        app.run_polling()
+    except Exception as e:
+        logger.critical(f"FATAL BOOT ERROR: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
