@@ -270,8 +270,10 @@ def main():
             with open(test_file, "w") as f:
                 f.write("test")
             os.remove(test_file)
+            logger.info(f"Disk write check PASSED at {db_dir}")
         except Exception as e:
-            logger.error(f"Write permissions check failed on {db_dir}: {e}")
+            logger.critical(f"CRITICAL DISK ERROR: Cannot write to {db_dir}. Bot will fail. Check Docker permissions. Error: {e}")
+            sys.exit(1)
 
         # Final environment validation
         if os.getenv("RAILWAY_ENVIRONMENT") == "production":

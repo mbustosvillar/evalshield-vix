@@ -17,6 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=devalshield:devalshield . .
 
+# Ensure devalshield has full access to the working directory
+RUN chown -r devalshield:devalshield /app
+
 USER devalshield
 
 CMD ["python", "collective_bot.py"]
