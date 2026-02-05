@@ -162,6 +162,20 @@ async def trigger_now(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Manual trigger for testing."""
     await daily_report(context)
 
+async def killswitch_on(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ADMIN: Activates the safety lock."""
+    # Authenticate admin here in prod
+    with open("safety_lock.json", "w") as f:
+        json.dump({"kill_switch_active": True}, f)
+    await update.message.reply_text("⛔ SYSTEM LOCKED. On-chain triggers disabled.")
+
+async def killswitch_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """ADMIN: Deactivates the safety lock."""
+    # Authenticate admin here in prod
+    with open("safety_lock.json", "w") as f:
+        json.dump({"kill_switch_active": False}, f)
+    await update.message.reply_text("⚠️ SYSTEM UN-LOCKED. On-chain triggers ENABLED.")
+
 def main():
     # Final environment validation
     if os.getenv("RAILWAY_ENVIRONMENT") == "production":
@@ -171,6 +185,8 @@ def main():
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("report", trigger_now))
+    app.add_handler(CommandHandler("lock", killswitch_on))
+    app.add_handler(CommandHandler("unlock", killswitch_off))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_feedback))
     
     # Schedule daily report at 10 AM
