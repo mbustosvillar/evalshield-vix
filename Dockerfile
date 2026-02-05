@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN groupadd -r devalshield && useradd -r -g devalshield devalshield
 
+# MANUAL TORCH CPU INSTALL (Priority 1)
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
 COPY --chown=devalshield:devalshield requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
