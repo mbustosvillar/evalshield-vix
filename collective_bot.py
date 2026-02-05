@@ -26,8 +26,9 @@ from integrated_orchestrator import run_orchestrator
 from solana_bridge import SafeVaultBridge
 from persistence import DevalDBManager
 
-# Global Bridge Instance
-bridge = SafeVaultBridge()
+# Instances will be initialized in main()
+bridge = None
+db = None
 
 # Try to import telegram, but provide instructions if missing
 try:
@@ -159,8 +160,7 @@ async def handle_feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     await update.message.reply_text(msg)
 
-# DB Instance
-db = DevalDBManager()
+# db instance will be initialized in main()
 
 async def hedge_status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Consulta el estado del bridge y transacciones pendientes."""
@@ -257,14 +257,21 @@ async def killswitch_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⚠️ SYSTEM UN-LOCKED. On-chain triggers ENABLED.")
 
 def main():
+    global db, bridge
     try:
+        # Initialize Core Instances
+        db = DevalDBManager()
+        bridge = SafeVaultBridge()
+        
         # Check write permissions for DB
         try:
-            with open("test_write.tmp", "w") as f:
+            db_dir = os.path.dirname(os.path.abspath(db.db_path))
+            test_file = os.path.join(db_dir, "test_write.tmp")
+            with open(test_file, "w") as f:
                 f.write("test")
-            os.remove("test_write.tmp")
+            os.remove(test_file)
         except Exception as e:
-            logger.error(f"Write permissions check failed: {e}")
+            logger.error(f"Write permissions check failed on {db_dir}: {e}")
 
         # Final environment validation
         if os.getenv("RAILWAY_ENVIRONMENT") == "production":

@@ -6,8 +6,15 @@ import os
 class DevalDBManager:
     """Institutional-grade persistence manager using SQLite."""
     
-    def __init__(self, db_path: str = "devalshield.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        if db_path is None:
+            # En Railway usamos /app, localmente el directorio actual
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            self.db_path = os.path.join(base_dir, "devalshield.db")
+        else:
+            self.db_path = db_path
+            
+        print(f"[DB] Initializing database at: {self.db_path}")
         self._init_db()
 
     def _init_db(self):
